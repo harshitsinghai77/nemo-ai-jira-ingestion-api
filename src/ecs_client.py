@@ -18,9 +18,9 @@ class ECSTaskError(Exception):
 def invoke_ecs_fargate_task(jira_information: JiraWebhookIngest, github_link: str):
     """Invoke ECS Fargate task for long running operations"""
     try:
-        cluster_name = 'NemoAIECSFargateStack-NemoAIECSCluster1F1DBE26-EfKbqxooWBEA'
+        cluster_name = 'NemoAIECSFargateStack-NemoAIECSCluster1F1DBE26-qAE5J3iQY5BA'
         task_definition = 'NemoAIECSFargateStackNemoAIECSTaskDefinitionF86D8E2D'
-        subnet_id = 'subnet-0da0c795e10622438'
+        # subnet_id = 'subnet-0da0c795e10622438'
         
         container_overrides = [{
             'name': 'NemoAIECSContainer', 
@@ -38,7 +38,7 @@ def invoke_ecs_fargate_task(jira_information: JiraWebhookIngest, github_link: st
             launchType='FARGATE',
             networkConfiguration={
                 'awsvpcConfiguration': {
-                    'subnets': [subnet_id],
+                    'subnets': ['subnet-0bb13121206d4c2d9', 'subnet-0b9056109302ba49a'],
                     'assignPublicIp': 'DISABLED'
                 }
             },
