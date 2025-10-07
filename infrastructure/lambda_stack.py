@@ -14,12 +14,13 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+        self.account = Stack.of(self).account
 
         table = _dynamodb.Table.from_table_name(self, "ImportedTable", "JiraWebhookEvents")
         queue = _sqs.Queue.from_queue_arn(
             self,
             "NemoAIQueue",
-            "arn:aws:sqs:us-east-1:850995537443:nemo-ai-tasks.fifo" 
+            f"arn:aws:sqs:us-east-1:{self.account}:nemo-ai-tasks.fifo" 
         )
 
         base_lambda = _lambda.Function(
@@ -37,7 +38,7 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
                 "POWERTOOLS_METRICS_NAMESPACE": "JiraIngestor",
                 "POWERTOOLS_METRICS_FUNCTION_NAME": "jira-ingestor",
                 "POWERTOOLS_SERVICE_NAME": "jira_ingestor",
-                "QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/850995537443/nemo-ai-tasks.fifo"
+                "QUEUE_URL": queue.queue_url
             },
         )
 
