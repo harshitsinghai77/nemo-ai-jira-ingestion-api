@@ -9,8 +9,8 @@ from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import ValidationError
 
-from app.jira_models import JiraWebhookIngest, extract_relevant_fields
-from app.dynamodb_client import DynamoDBClient
+from src.jira_models import JiraWebhookIngest, extract_relevant_fields
+from src.dynamodb_client import DynamoDBClient
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
