@@ -38,7 +38,7 @@ def invoke_ecs_fargate_task(jira_information: JiraWebhookIngest, github_link: st
             launchType='FARGATE',
             networkConfiguration={
                 'awsvpcConfiguration': {
-                    'subnets': ['subnet-0bb13121206d4c2d9', 'subnet-0b9056109302ba49a'],
+                    'subnets': ['subnet-0b9056109302ba49a'],
                     'assignPublicIp': 'DISABLED'
                 }
             },
