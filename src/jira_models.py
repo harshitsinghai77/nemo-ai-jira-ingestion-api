@@ -59,4 +59,9 @@ class JiraWebhookIngest(BaseModel):
     status_from: Optional[str]
     status_to: Optional[str]
     additional_kwargs: Dict[str, Any]
+
+class SqsPayload(BaseModel):
+    github_link: str
+    jira_story: str
+    jira_story_id: str
     

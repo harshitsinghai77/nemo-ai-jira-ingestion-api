@@ -3,6 +3,7 @@ from aws_cdk import (
     Duration,
     aws_lambda as _lambda,
     aws_dynamodb as _dynamodb,
+    aws_sqs as _sqs,
     aws_iam as iam,
     CfnOutput,
 )
@@ -15,6 +16,11 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         table = _dynamodb.Table.from_table_name(self, "ImportedTable", "JiraWebhookEvents")
+        queue = _sqs.Queue.from_queue_arn(
+            self,
+            "NemoAIQueue",
+            "arn:aws:sqs:us-east-1:976193265367:nemo-ai-tasks.fifo" 
+        )
 
         base_lambda = _lambda.Function(
             self,
@@ -24,17 +30,19 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
             #code=aws_lambda.Code.from_asset("src")
             code = _lambda.Code.from_asset("lambda_function.zip"),
             memory_size=128,
-            timeout=Duration.seconds(90),
+            timeout=Duration.seconds(60),
             tracing=_lambda.Tracing.ACTIVE,
             environment={
                 "DYNAMODB_TABLE_NAME": table.table_name,
                 "POWERTOOLS_METRICS_NAMESPACE": "JiraIngestor",
                 "POWERTOOLS_METRICS_FUNCTION_NAME": "jira-ingestor",
                 "POWERTOOLS_SERVICE_NAME": "jira_ingestor",
+                "QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/976193265367/nemo-ai-tasks.fifo"
             },
         )
 
         table.grant_read_write_data(base_lambda)
+        queue.grant_send_messages(fn)
 
         base_lambda.add_to_role_policy(iam.PolicyStatement(
             actions=["cloudwatch:PutMetricData", "logs:CreateLogStream", "logs:PutLogEvents", "xray:PutTraceSegments", "xray:PutTelemetryRecords"],
