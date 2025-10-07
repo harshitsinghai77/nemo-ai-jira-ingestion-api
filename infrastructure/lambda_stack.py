@@ -19,7 +19,7 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
         queue = _sqs.Queue.from_queue_arn(
             self,
             "NemoAIQueue",
-            "arn:aws:sqs:us-east-1:976193265367:nemo-ai-tasks.fifo" 
+            "arn:aws:sqs:us-east-1:850995537443:nemo-ai-tasks.fifo" 
         )
 
         base_lambda = _lambda.Function(
@@ -37,7 +37,7 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
                 "POWERTOOLS_METRICS_NAMESPACE": "JiraIngestor",
                 "POWERTOOLS_METRICS_FUNCTION_NAME": "jira-ingestor",
                 "POWERTOOLS_SERVICE_NAME": "jira_ingestor",
-                "QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/976193265367/nemo-ai-tasks.fifo"
+                "QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/850995537443/nemo-ai-tasks.fifo"
             },
         )
 
