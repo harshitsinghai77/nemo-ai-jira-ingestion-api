@@ -15,7 +15,7 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
             #code=aws_lambda.Code.from_asset("src")
             code = aws_lambda.Code.from_asset("lambda_function.zip"),
             memory_size=256,
-            timeout=Duration.seconds(180)
+            timeout=Duration.seconds(90)
         )
 
         function_url = base_lambda.add_function_url(

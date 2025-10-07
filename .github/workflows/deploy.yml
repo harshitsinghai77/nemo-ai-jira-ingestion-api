@@ -50,4 +50,4 @@ jobs:
       - name: Deploy CDK stack
         env:
           AWS_DEFAULT_ACCOUNT: ${{ secrets.AWS_DEFAULT_ACCOUNT }}
-        run: cdk deploy --app "python cdk_app.py" --require-approval never
+        run: cdk deploy
