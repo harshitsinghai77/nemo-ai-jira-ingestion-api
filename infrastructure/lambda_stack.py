@@ -48,7 +48,7 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
         ))
 
         base_lambda.add_to_role_policy(iam.PolicyStatement(
-            actions=["ecs:RunTask", "ecs:DescribeTasks", "ecs:DescribeTaskDefinition", "ecs:ListTasks", "iam:PassRole"],
+            actions=["ecs:RunTask", "ecs:DescribeTasks", "ecs:DescribeTaskDefinition", "ecs:ListTasks", "ecs:TagResource", "iam:PassRole"],
             resources=["*"]
         ))
 

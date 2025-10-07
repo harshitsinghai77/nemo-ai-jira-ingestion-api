@@ -59,7 +59,8 @@ def ingest_jira_story():
             ecs_response = invoke_ecs_fargate_task(jira_information, github_link)
             logger.info(f"ECS task started successfully: {ecs_response}")
             metrics.add_metric(name="ECSTasksStarted", unit=MetricUnit.Count, value=1)
-        if not long_running_task and github_link:
+        else:
+            logger.info(f"Sending message to SQS...")
             sqs_payload = SqsPayload(
                 github_link=github_link,
                 jira_story=jira_information.description,
