@@ -1,4 +1,4 @@
-from aws_cdk import Stack, aws_apigateway, aws_lambda
+from aws_cdk import Stack, aws_apigateway, aws_lambda, Duration
 
 from constructs import Construct
 
@@ -12,7 +12,10 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
             "NemoAIJiraIngestionAPILambdaFunction",
             runtime=aws_lambda.Runtime.PYTHON_3_13,
             handler="app.lambda_handler",
-            code=aws_lambda.Code.from_asset("src")
+            #code=aws_lambda.Code.from_asset("src")
+            code = aws_lambda.Code.from_asset("lambda_function.zip"),
+            memory_size=256,
+            timeout=Duration.seconds(180)
         )
 
         # endpoint = aws_apigateway.LambdaRestApi(
