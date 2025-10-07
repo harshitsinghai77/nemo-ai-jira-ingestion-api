@@ -47,6 +47,11 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
             resources=["*"]
         ))
 
+        base_lambda.add_to_role_policy(iam.PolicyStatement(
+            actions=["ecs:RunTask", "ecs:DescribeTasks", "ecs:DescribeTaskDefinition", "ecs:ListTasks", "iam:PassRole"],
+            resources=["*"]
+        ))
+
         function_url = base_lambda.add_function_url(
             auth_type=_lambda.FunctionUrlAuthType.NONE,
             cors=_lambda.FunctionUrlCorsOptions(

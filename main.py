@@ -12,7 +12,8 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from src.jira_models import JiraWebhookIngest, extract_relevant_fields, SqsPayload
 from src.dynamodb_client import DynamoDBClient
-from src.github_url_parser import extract_github_url
+from src.github_url_parser import extract_github_url, extract_long_running_task
+from src.ecs_client import invoke_ecs_fargate_task, ECSTaskError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -31,7 +32,7 @@ load_dotenv()
 def ingest_jira_story():
     try:
         payload = app.current_event.json_body
-        logger.debug(f"Payload received: {payload}")
+        logger.info(f"Payload received: {payload}")
         
         flatten_payload = extract_relevant_fields(payload)
         jira_information = JiraWebhookIngest.model_validate(flatten_payload)
@@ -42,7 +43,23 @@ def ingest_jira_story():
         logger.info(f"Saved story {jira_information.jira_id} to DynamoDB")
 
         github_link = extract_github_url(jira_information.description)
-        if github_link:
+        long_running_task = extract_long_running_task(jira_information.description)
+
+        if not github_link:
+            logger.warning(f"No GitHub URL found in Jira story: {jira_information.jira_id}")
+            metrics.add_metric(name="StoriesProcessed", unit=MetricUnit.Count, value=1)
+            return Response(
+                status_code=200,
+                content_type="application/json",
+                body={"message": "Story ingested successfully but no GitHub URL found"}
+            )
+
+        if long_running_task:
+            logger.info(f"Long running task detected for story {jira_information.jira_id}")
+            ecs_response = invoke_ecs_fargate_task(jira_information, github_link)
+            logger.info(f"ECS task started successfully: {ecs_response}")
+            metrics.add_metric(name="ECSTasksStarted", unit=MetricUnit.Count, value=1)
+        if not long_running_task and github_link:
             sqs_payload = SqsPayload(
                 github_link=github_link,
                 jira_story=jira_information.description,
@@ -56,14 +73,20 @@ def ingest_jira_story():
                 # MessageDeduplicationId=story_id
             )
             logger.info(f"Sent message to SQS: {sqs_payload}")
-        else:
-            logger.warning(f"No GitHub URL found in Jira story: {jira_information.jira_id}")
 
         metrics.add_metric(name="StoriesProcessed", unit=MetricUnit.Count, value=1)
         return Response(
             status_code=200,
             content_type="application/json",
             body={"message": "Story ingested successfully"}
+        )
+    except ECSTaskError as ecs_error:
+        logger.error(f"ECS task error occurred: {ecs_error.message} - {ecs_error.details}")
+        metrics.add_metric(name="ECSTaskErrors", unit=MetricUnit.Count, value=1)
+        return Response(
+            status_code=500,
+            content_type="application/json",
+            body={"message": f"ECS task error occurred: {ecs_error.message}"}
         )
     except Exception as e:
         logger.error(f"Request error occurred: {e}")
