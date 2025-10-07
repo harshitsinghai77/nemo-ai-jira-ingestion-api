@@ -42,7 +42,7 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
         )
 
         table.grant_read_write_data(base_lambda)
-        queue.grant_send_messages(fn)
+        queue.grant_send_messages(base_lambda)
 
         base_lambda.add_to_role_policy(iam.PolicyStatement(
             actions=["cloudwatch:PutMetricData", "logs:CreateLogStream", "logs:PutLogEvents", "xray:PutTraceSegments", "xray:PutTelemetryRecords"],
