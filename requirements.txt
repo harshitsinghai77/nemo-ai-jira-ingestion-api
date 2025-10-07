@@ -1,2 +1,4 @@
-boto3
-aws-lambda-powertools==3.16.0
+aws-lambda-powertools == 3.17.0
+aws-xray-sdk == 2.14.0
+pydantic == 2.11.7
+python-dotenv == 1.1.1
