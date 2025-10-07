@@ -1,5 +1,7 @@
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from src.task_metadata_parser import is_data_analysis_task
 
 def extract_relevant_fields(payload: dict) -> dict:
     issue = payload.get("issue", {})
@@ -58,7 +60,11 @@ class JiraWebhookIngest(BaseModel):
     sprint_name: Optional[str]
     status_from: Optional[str]
     status_to: Optional[str]
+    is_data_analysis_task: bool = Field(default=False, exclude=False)
     additional_kwargs: Dict[str, Any]
+
+    def model_post_init(self, __context: Any) -> None:
+        self.is_data_analysis_task = is_data_analysis_task(self.description)
 
 class SqsPayload(BaseModel):
     github_link: str

@@ -12,8 +12,9 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from src.jira_models import JiraWebhookIngest, extract_relevant_fields, SqsPayload
 from src.dynamodb_client import DynamoDBClient
-from src.github_url_parser import extract_github_url, extract_long_running_task
+from src.task_metadata_parser import extract_github_url, is_long_running_task, is_data_analysis_task
 from src.ecs_client import invoke_ecs_fargate_task, ECSTaskError
+from src.send_sqs_message import send_sqs_message
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -22,7 +23,6 @@ tracer = Tracer()
 logger = Logger()
 metrics = Metrics()
 
-sqs = boto3.client("sqs")
 app = LambdaFunctionUrlResolver()
 
 load_dotenv()
@@ -43,7 +43,6 @@ def ingest_jira_story():
         logger.info(f"Saved story {jira_information.jira_id} to DynamoDB")
 
         github_link = extract_github_url(jira_information.description)
-        long_running_task = extract_long_running_task(jira_information.description)
 
         if not github_link:
             logger.warning(f"No GitHub URL found in Jira story: {jira_information.jira_id}")
@@ -54,26 +53,16 @@ def ingest_jira_story():
                 body={"message": "Story ingested successfully but no GitHub URL found"}
             )
 
-        if long_running_task:
+        if is_long_running_task(jira_information.description):
             logger.info(f"Long running task detected for story {jira_information.jira_id}")
             ecs_response = invoke_ecs_fargate_task(jira_information, github_link)
             logger.info(f"ECS task started successfully: {ecs_response}")
             metrics.add_metric(name="ECSTasksStarted", unit=MetricUnit.Count, value=1)
         else:
             logger.info(f"Sending message to SQS...")
-            sqs_payload = SqsPayload(
-                github_link=github_link,
-                jira_story=jira_information.description,
-                jira_story_id=jira_information.jira_id
-            )
-
-            sqs.send_message(
-                QueueUrl=os.getenv('QUEUE_URL'),
-                MessageBody=sqs_payload.model_dump_json(),
-                MessageGroupId="jira-tasks",
-                # MessageDeduplicationId=story_id
-            )
-            logger.info(f"Sent message to SQS: {sqs_payload}")
+            sqs_response = send_sqs_message(jira_information, github_link)
+            logger.info(f"Sent message to SQS: {sqs_response}")
+            metrics.add_metric(name="SQSMessagesSent", unit=MetricUnit.Count, value=1)
 
         metrics.add_metric(name="StoriesProcessed", unit=MetricUnit.Count, value=1)
         return Response(

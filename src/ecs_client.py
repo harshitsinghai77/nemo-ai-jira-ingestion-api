@@ -28,7 +28,8 @@ def invoke_ecs_fargate_task(jira_information: JiraWebhookIngest, github_link: st
                 {'name': 'GITHUB_LINK', 'value': github_link},
                 {'name': 'JIRA_STORY', 'value': jira_information.description},
                 {'name': 'JIRA_STORY_ID', 'value': jira_information.jira_id},
-                {'name': 'TASK_TYPE', 'value': 'long_running_task'}
+                {'name': 'TASK_TYPE', 'value': 'long_running_task'},
+                {'name': 'IS_DATA_ANALYSIS_TASK', 'value': str(jira_information.is_data_analysis_task)},
             ]
         }]
         
@@ -38,8 +39,8 @@ def invoke_ecs_fargate_task(jira_information: JiraWebhookIngest, github_link: st
             launchType='FARGATE',
             networkConfiguration={
                 'awsvpcConfiguration': {
-                    'subnets': ['subnet-0b9056109302ba49a'],
-                    'assignPublicIp': 'DISABLED'
+                    'subnets': ['subnet-01e1d8233de3701eb'],
+                    'assignPublicIp': 'ENABLED'
                 }
             },
             overrides={
