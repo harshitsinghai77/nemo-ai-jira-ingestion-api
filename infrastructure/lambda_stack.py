@@ -18,11 +18,7 @@ class NemoAIJiraIngestionAPILambdaStack(Stack):
         aws_account = Stack.of(self).account
 
         table = _dynamodb.Table.from_table_name(self, "ImportedTable", "JiraWebhookEvents")
-        queue = _sqs.Queue.from_queue_arn(
-            self,
-            "NemoAIQueue",
-            f"arn:aws:sqs:us-east-1:{aws_account}:nemo-ai-tasks.fifo" 
-        )
+        queue = _sqs.Queue.from_queue_arn(self, "NemoAIQueue", f"arn:aws:sqs:us-east-1:{aws_account}:nemo-ai-tasks.fifo")
 
         base_lambda = _lambda.Function(
             self,

@@ -9,7 +9,6 @@ from aws_lambda_powertools.event_handler import LambdaFunctionUrlResolver
 from aws_lambda_powertools.event_handler.api_gateway import Response
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from pydantic import ValidationError
 
 from src.jira_models import JiraWebhookIngest, extract_relevant_fields, SqsPayload
 from src.dynamodb_client import DynamoDBClient
