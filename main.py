@@ -67,7 +67,7 @@ def ingest_jira_story():
             body={"message": "Story ingested successfully"}
         )
     except ECSTaskError as ecs_error:
-        logger.error(f"ECS task error occurred: {ecs_error.message} - {ecs_error.details}")
+        logger.error(f"ECS task error occurred: {ecs_error.message} - {ecs_error.details}", exc_info=True)
         metrics.add_metric(name="ECSTaskErrors", unit=MetricUnit.Count, value=1)
         return Response(
             status_code=500,
@@ -75,7 +75,7 @@ def ingest_jira_story():
             body={"message": f"ECS task error occurred: {ecs_error.message}"}
         )
     except Exception as e:
-        logger.error(f"Request error occurred: {e}")
+        logger.error(f"Request error occurred: {e}", exc_info=True)
         metrics.add_metric(name="RequestFailed", unit=MetricUnit.Count, value=1)
         return Response(
             status_code=200,

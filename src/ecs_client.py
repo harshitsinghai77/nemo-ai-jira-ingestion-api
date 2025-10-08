@@ -54,5 +54,5 @@ def invoke_ecs_fargate_task(jira_information: JiraWebhookIngest, github_link: st
         return response
         
     except Exception as e:
-        logger.error(f"Failed to start ECS Fargate task: {e}")
+        logger.error(f"Failed to start ECS Fargate task: {e}", exc_info=True)
         raise ECSTaskError(f"Failed to start ECS Fargate task", str(e))
