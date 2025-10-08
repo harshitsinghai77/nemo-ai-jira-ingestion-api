@@ -1,12 +1,12 @@
 import os
-import logging
 
 import boto3
+from aws_lambda_powertools.logging import Logger
 
 from src.jira_models import SqsPayload
 from src.jira_models import JiraWebhookIngest
 
-logger = logging.getLogger(__name__)
+logger = Logger(service="jira_ingestor", level="INFO", json_formatter=True)
 sqs = boto3.client('sqs')
 
 def send_sqs_message(jira_information: JiraWebhookIngest, github_link: str) -> dict:

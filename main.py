@@ -1,14 +1,13 @@
-import logging
 import os
 from dotenv import load_dotenv
 
-import boto3
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.event_handler import LambdaFunctionUrlResolver
 from aws_lambda_powertools.event_handler.api_gateway import Response
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
+from aws_lambda_powertools.logging import Logger
 
 from src.jira_models import JiraWebhookIngest, extract_relevant_fields
 from src.dynamodb_client import DynamoDBClient
@@ -16,11 +15,8 @@ from src.task_metadata_parser import extract_github_url, is_long_running_task, i
 from src.ecs_client import invoke_ecs_fargate_task, ECSTaskError
 from src.send_sqs_message import send_sqs_message
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
 tracer = Tracer()
-logger = Logger()
+logger = Logger(service="jira_ingestor", level="INFO", json_formatter=True)
 metrics = Metrics()
 
 app = LambdaFunctionUrlResolver()
@@ -81,7 +77,7 @@ def ingest_jira_story():
     except Exception as e:
         logger.error(f"Request error occurred: {e}")
         metrics.add_metric(name="RequestFailed", unit=MetricUnit.Count, value=1)
-        Response(
+        return Response(
             status_code=200,
             content_type="application/json",
             body={"message": f"Request error occurred: {str(e)}"}

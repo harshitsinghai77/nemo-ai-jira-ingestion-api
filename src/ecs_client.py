@@ -1,11 +1,9 @@
-import logging
 import boto3
 
 from src.jira_models import JiraWebhookIngest
+from aws_lambda_powertools.logging import Logger
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
+logger = Logger(service="jira_ingestor", level="INFO", json_formatter=True)
 ecs = boto3.client("ecs")
 
 class ECSTaskError(Exception):
