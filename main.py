@@ -10,7 +10,7 @@ from aws_lambda_powertools.event_handler.api_gateway import Response
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
-from src.jira_models import JiraWebhookIngest, extract_relevant_fields, SqsPayload
+from src.jira_models import JiraWebhookIngest, extract_relevant_fields
 from src.dynamodb_client import DynamoDBClient
 from src.task_metadata_parser import extract_github_url, is_long_running_task, is_data_analysis_task
 from src.ecs_client import invoke_ecs_fargate_task, ECSTaskError
