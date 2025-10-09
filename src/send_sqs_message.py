@@ -29,7 +29,7 @@ def send_sqs_message(jira_information: JiraWebhookIngest, github_link: str) -> d
     response = sqs.send_message(
         QueueUrl=queue_url,
         MessageBody=payload.model_dump_json(),
-        MessageGroupId="jira-tasks",  # Change as needed
+        MessageGroupId=jira_information.jira_id
         # MessageDeduplicationId=payload.jira_story_id  # Optional if using FIFO queue
     )
 

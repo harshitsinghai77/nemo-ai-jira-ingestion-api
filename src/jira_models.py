@@ -10,8 +10,8 @@ def extract_relevant_fields(payload: dict) -> dict:
     status_category = status.get("statusCategory", {})
     issue_type = fields.get("issuetype", {})
     project = fields.get("project", {})
-    assignee = fields.get("assignee", {})
-    reporter = fields.get("reporter", {})
+    assignee = fields.get("assignee") or {}
+    reporter = fields.get("reporter") or {}
     changelog_items = payload.get("changelog", {}).get("items", [{}])
 
     return {
@@ -60,7 +60,7 @@ class JiraWebhookIngest(BaseModel):
     sprint_name: Optional[str]
     status_from: Optional[str]
     status_to: Optional[str]
-    is_data_analysis_task: bool = Field(default=False, exclude=False)
+    is_data_analysis_task: bool = Field(default=False)
     additional_kwargs: Dict[str, Any]
 
     def model_post_init(self, __context: Any) -> None:
@@ -70,4 +70,5 @@ class SqsPayload(BaseModel):
     github_link: str
     jira_story: str
     jira_story_id: str
+    is_data_analysis_task: bool = False
     
