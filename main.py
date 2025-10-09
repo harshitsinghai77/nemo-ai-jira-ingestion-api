@@ -11,7 +11,7 @@ from aws_lambda_powertools.logging import Logger
 
 from src.jira_models import JiraWebhookIngest, extract_relevant_fields
 from src.dynamodb_client import DynamoDBClient
-from src.task_metadata_parser import extract_github_url
+from src.task_metadata_parser import extract_github_url, is_long_running_task
 from src.ecs_client import invoke_ecs_fargate_task, ECSTaskError
 from src.send_sqs_message import send_sqs_message
 
@@ -49,7 +49,7 @@ def ingest_jira_story():
                 body={"message": "Story ingested successfully but no GitHub URL found"}
             )
 
-        if jira_information.is_data_analysis_task:
+        if is_long_running_task(jira_information.description):
             logger.info(f"Long running task detected for story {jira_information.jira_id}")
             ecs_response = invoke_ecs_fargate_task(jira_information, github_link)
             logger.info(f"ECS task started successfully: {ecs_response}")
