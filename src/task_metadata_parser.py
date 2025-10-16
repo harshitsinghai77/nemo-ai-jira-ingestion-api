@@ -13,7 +13,7 @@ def remove_html_formatting(jira_story: str) -> str:
 def extract_github_url(jira_story: str) -> str:
     "Extract the first GitHub URL found in the Jira story."
     if not jira_story:
-        return None
+        return False
 
     cleaned_text = remove_html_formatting(jira_story)
     pattern = r"https?://(?:www\.)?github\.com/[^\s|)\]\"'<]+"
@@ -21,6 +21,8 @@ def extract_github_url(jira_story: str) -> str:
 
     if matches:
         return matches[0]
+    
+    return False
 
 def is_long_running_task(jira_story: str) -> bool:
     """Looks for 'Long Running Task: True' in the Jira story."""
